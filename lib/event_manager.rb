@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'date'
+require 'time'
 require 'csv'
 require 'google/apis/civicinfo_v2'
 require 'erb'
@@ -17,6 +19,14 @@ def clean_phone_numbers(phone)
   else
     phone
   end
+end
+
+def registration_hour(time)
+  Time.strptime(time.to_s, '%D %R').hour
+end
+
+def registration_day(date)
+  Date.strptime(date.to_s, '%D').wday
 end
 
 def legislators_by_zipcode(zip)
@@ -55,8 +65,15 @@ contents = CSV.open(
 template_letter = File.read('form_letter.erb')
 erb_template = ERB.new template_letter
 
+registrations_by_hour = Hash.new(0)
+registrations_by_day = Hash.new(0)
+
 contents.each do |row|
   id = row[0]
+  registered_hour = registration_hour(row[:regdate])
+  registrations_by_hour["Hour #{registered_hour}"] += 1
+  registered_day = registration_day(row[:regdate])
+  registrations_by_day["Day #{registered_day}"] += 1
   name = row[:first_name]
   home_phone = clean_phone_numbers(row[:homephone])
   zipcode = clean_zipcode(row[:zipcode])
@@ -65,3 +82,6 @@ contents.each do |row|
 
   save_thank_you_letter(id, form_letter)
 end
+
+puts registrations_by_hour.sort_by { |_hour, registrations| registrations }.reverse.to_h
+puts registrations_by_day.sort_by { |_day, registrations| registrations }.reverse.to_h

@@ -10,9 +10,5 @@
 -manipulate strings  
 -access google's civic information API through google API client gem  
 -use ERB for templating  
+-Learned about the Date and Time classes in the ruby api by reading through csv file and sorting the hours and days from the times given  
 
-## In progress:  
-
--Build a clean phone numbers method  
--Build time targeting to find the peak registration hours  
--Lastly build day of the week targeting  
